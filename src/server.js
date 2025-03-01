@@ -1,14 +1,43 @@
+/**
+ * Updated by trungquandev.com's author on August 17 2023
+ * YouTube: https://youtube.com/@trungquandev
+ * "A bit of fragrance clings to the hand that gives flowers!"
+ */
+
 import express from 'express'
+import exitHook from 'async-exit-hook'
+import { env } from './config/environment.js'
+import { CONNECT_DB, GET_DB, CLOSE_DB } from './config/mongodb.js'
+const START_SERVER = () => {
+  const app = express()
 
-const app = express();
+  app.get('/', async (req, res) => {
+    // Test Absolute import mapOrder
+    console.log(await GET_DB().listCollections().toArray())
+    // console.log('Hello')
+    res.end('<h1>Hello World!</h1><hr>')
+  })
 
-const hostname = "localhost"
-const port = 8017
+  app.listen(env.APP_PORT, env.APP_HOST, () => {
+    // eslint-disable-next-line no-console
+    console.log(
+      `Hello ${env.AUTHOR},backend server is running at ${env.APP_HOST}:${env.APP_PORT}/`
+    )
+  })
 
-app.get('/', function(req, res){
-    res.send("<h1>Hello World</h1>")
-})
-
-app.listen(port, hostname, function(){
-    console.log(`Server running at ${hostname}:${port}`)
-})
+  exitHook(() => {
+    CLOSE_DB()
+    // console.log('Closed DB')
+  })
+}
+;(async () => {
+  try {
+    console.log('Connecting to MongoDB')
+    await CONNECT_DB()
+    console.log('Connected to MongoDB')
+    START_SERVER()
+  } catch (error) {
+    console.log(error)
+    process.exit(0)
+  }
+})()
