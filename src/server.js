@@ -8,8 +8,14 @@ import express from 'express'
 import exitHook from 'async-exit-hook'
 import { env } from './config/environment.js'
 import { CONNECT_DB, GET_DB, CLOSE_DB } from './config/mongodb.js'
+
+import { APIs_V1 } from './routes/v1/index.js'
+
 const START_SERVER = () => {
   const app = express()
+
+  app.use(express.json())
+  app.use('/v1', APIs_V1)
 
   app.get('/', async (req, res) => {
     // Test Absolute import mapOrder
