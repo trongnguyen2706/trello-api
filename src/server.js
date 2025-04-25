@@ -8,12 +8,15 @@ import express from 'express'
 import exitHook from 'async-exit-hook'
 import { env } from './config/environment.js'
 import { CONNECT_DB, GET_DB, CLOSE_DB } from './config/mongodb.js'
+import cors from 'cors'
+import { corsOptions } from 'cors'
 
 import { APIs_V1 } from './routes/v1/index.js'
 import { errorHandlingMiddleware } from './middlewares/errorHandling.js'
 const START_SERVER = () => {
   const app = express()
 
+  app.use(cors(corsOptions))
   app.use(express.json())
   app.use('/v1', APIs_V1)
 

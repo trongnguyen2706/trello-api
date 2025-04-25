@@ -7,6 +7,7 @@ import { slugify } from '~/utils/formatters.js'
 import { boardModel } from '~/models/boardModel'
 import ApiError from '~/utils/ApiError'
 import { StatusCodes } from 'http-status-codes'
+import { cloneDeep } from 'lodash'
 
 const createNew = async reqBody => {
   const newBoard = {
@@ -24,7 +25,15 @@ const getDetails = async id => {
     throw new ApiError(StatusCodes.BAD_REQUEST, 'Invalid board id')
   }
   const boardResult = await boardModel.getDetails(id)
-  return boardResult
+  const resBoard = cloneDeep(boardResult)
+  resBoard.columns?.forEach(column => {
+    column.cards = resBoard.cards?.filter(
+      card => card.columnId.toString() === column._id.toString()
+    )
+  })
+
+  delete resBoard.cards
+  return resBoard
 }
 
 export const boardService = {
